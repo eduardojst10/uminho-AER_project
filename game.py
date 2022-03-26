@@ -5,10 +5,32 @@ class Game:
         self.ready = False
         self.id = id
         self.moves = [None, None]
-        #tempo que cada jogador demorou a fazer cada pergunta
-        self.times = [None, None]
         self.wins = [0, 0]
         self.ties = 0
+        # Variáveis que vou precisar para trivia quiz
+        # tempo total que cada jogador demorou a fazer o questionário
+        self.total = 0 # total de questões
+        self.answers = {} # número da questão e número da resposta certa
+        self.times = [None, None] # tempo que cada jogador demorou a realizar o jogo
+        self.points = [0, 0]  # Pontos de cada jogador
+
+        f = open("trivia_game.txt", "r")
+        trivia_data = f.readlines()
+        f.close()
+
+        quest_bool = 6
+        self.total = 0
+        i = 0
+        # número de perguntas total e dicionário preenchido
+        for text_line in trivia_data:
+            i += 1
+            if quest_bool == 0:
+                self.answers.update({text_line: int(trivia_data[i + 4].strip())})
+                self.total += 1
+                quest_bool = 6
+
+            quest_bool -= 1
+
 
     def get_player_move(self, p):
         """
@@ -58,6 +80,7 @@ class Game:
     def resetWent(self):
         self.p1Went = False
         self.p2Went = False
+
 
 
 
