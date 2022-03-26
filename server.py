@@ -3,7 +3,6 @@ import socket
 from _thread import *
 from game import Game
 
-
 # Send/receive UDP multicast packets.
 # Requires that your OS kernel supports IP multicast.
 #
@@ -18,7 +17,6 @@ from game import Game
 server = "127.0.0.1"
 port = 55550
 
-
 # criação de socket para ipv4
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -31,7 +29,6 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for connection, Server Started for Game")
 
-connected = set()
 # store ids de games
 games = {}
 # keep track dos jogos
@@ -62,7 +59,6 @@ def threaded_client(conn, p, gameId):
                     elif data != "get":
                         game.play(p, data)
 
-                    # de qualquer forma ele vai sempre dar dump ao jogo para o cliente
                     conn.sendall(pickle.dumps(game))
             else:
                 break
@@ -84,13 +80,10 @@ while True:
     print("Conectado a : ", addr)
     idCount += 1
     p = 0
-
-    # por exemplo se tivermos 6 pessoas apenas precisamos de 3 jogos, com 7 temos de ter +1 e esperar pelo 8.º jogador
-    # the floor division // rounds the result DOWN to the nearest whole number
-    # Se tivermos 4 pessoas, são dois jogos temos então a conta (4-1) // 2 = 3 // 2 = 1
-    # logo vamos no jogo com indice 1 (dois jogos com ids, 0 e 1 )
-
-    # o que gameId vai fazer é dizer-nos quando é necessário criar mais um jogo,
+    # o que gameId vai fazer é dizer-nos quando é necessário criar mais um jogo
+    # por exemplo se tivermos 6 pessoas apenas precisamos de 3 jogos, com 7 temos de ter +1 e esperar pelo 8º jogador
+    # the floor division // rounds the result down to the nearest whole number
+    # Se tivermos 4 pessoas, são dois jogos temos então a conta (4-1) // 2 = 3 // 2 = 1, logo vamos no jogo com indice 1 (dois jogos com ids, 0 e 1 )
     gameId = (idCount - 1) // 2
 
     # se precisamos de criar mais um jogo ou não consoante o número de pessoas
@@ -99,7 +92,7 @@ while True:
         games[gameId] = Game(gameId)
         print("Creating a new game: ", gameId)
     else:
-        # sendo assim já temos o número de pessoas certas para começar um jogo, o estado do jogo é de ready
+        # sendo assim já temos o numero de pessoas certas para começar um jogo, o estado do jogo é de ready
         games[gameId].ready = True
         # current player
         p = 1

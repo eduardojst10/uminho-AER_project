@@ -1,15 +1,16 @@
 import socket
+# serialize and deserialize objects
 import pickle
 
-# Necessário ver como fazer comunicação com IPv6
 
+class Network:
 
-class NetworkPro:
     def __init__(self):
-        #inicialmente está conexão ipv4
+
+        # SOCK_STREAM - TCP || SOCK_DGRAM - UDP
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "192.168.3.7" # meu local server podia ter usado o clássico 127.0.0.1
-        self.port = 5555
+        self.server = "127.0.0.1"
+        self.port = 55550
         self.addr = (self.server, self.port)
         self.p = self.connect()
 
@@ -19,13 +20,16 @@ class NetworkPro:
     def connect(self):
         try:
             self.client.connect(self.addr)
+            # O que vamos dar ao server é o número de player
             return self.client.recv(2048).decode()
         except:
-            pass
+            print("No connection")
 
     def send(self, data):
         try:
+            # vamos enviar string de dados e vamos receber objectos
             self.client.send(str.encode(data))
             return pickle.loads(self.client.recv(2048*2))
+
         except socket.error as e:
             print(e)
