@@ -27,9 +27,9 @@ class Network:
 
     def send(self, data):
         try:
-            # vamos enviar string de dados e vamos receber objectos
+            # vamos enviar string de dados e vamos receber objectos, neste caso o jogo
             self.client.send(str.encode(data))
-            return pickle.loads(self.client.recv(2048*2))
+            return pickle.loads(self.client.recv(2048*6))
 
         except socket.error as e:
             print(e)

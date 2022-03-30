@@ -43,9 +43,9 @@ def threaded_client(conn, p, gameId):
     conn.send(str.encode(str(p)))  # vamos enviar que jogador somos [0,1]
 
     reply = ""
-    while True:  # vamos ter 3 opções: um get do jogo do server, um reset ou então um move (pedra ,papel, tesoura) e verificar se o jogo ainda existe
+    while True:  # vamos ter 3 opções: um get do jogo do server, um resetForward uma answer à questão
         try:
-            data = conn.recv(4096).decode()
+            data = conn.recv(4096*4).decode()
             if gameId in games:  # verificar se o jogo ainda existe e se algum cliente não desconectou mais cedo
                 game = games[gameId]
 
@@ -56,7 +56,13 @@ def threaded_client(conn, p, gameId):
                     if data == "reset":
                         game.resetWent()
 
+                    elif data == "resetForward":
+                        print("got a resetForward from", p)
+                        game.resetForward(p)
+                        print("Jogador ", p, "está na questão: ", game.currentQuestion(p))
+                        print("--------------------------------------------------")
                     elif data != "get":
+                        print("got an answer from ",p)
                         game.play(p, data)
 
                     conn.sendall(pickle.dumps(game))
