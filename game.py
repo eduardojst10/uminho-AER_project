@@ -6,9 +6,7 @@ class Game:
         self.ready = False
         self.id = id
 
-
-
-        # estados de perguntas para cada jogador
+        # estados de perguntas para cada jogador: flags de avanço
         self.p1forward = False
         self.p2forward = False
 
@@ -24,7 +22,7 @@ class Game:
         self.questions_options = {}
         self.total = 0
 
-        f = open("trivia_game.txt", "r")
+        f = open("trivia_gameSHORT_TEST.txt", "r")
         trivia_data = f.readlines()
         f.close()
 
@@ -46,13 +44,6 @@ class Game:
 
         self.questOrd = list(self.answers)
 
-    def get_player_move(self, p):
-        """
-            :param p: [0,1]
-            :return: Move
-        """
-        return self.moves[p]
-
     # Player responde a uma questão
     def play(self, player, choice):
             self.moves[player] = choice
@@ -65,31 +56,36 @@ class Game:
              else:
                     self.points[1] += 10
 
-            if player == 0:
-                print("vou para próxima pergunta no Jogador 0")
-                self.p1forward = True
+            self.forwardPlayer(player)
 
-            else:
-                print("vou para próxima  no Jogador 1")
-                self.p2forward = True
-
-
-    # Passo para a próxima pergunta no current player
+    # Método que passa para a próxima pergunta no current player
     def nextQuestion(self,player):
         self.current[player] += 1
-    # Pergunta atual para o player que avançou
+
+    # Método que obtém a pergunta atual para o player que avançou
     def currentQuestion(self,player):
         return self.questOrd[self.current[player]]
 
-
-    # Tag que indica ao jogo para avançar pergunta num determinado jogador
+    # Método Tag que indica ao jogo para avançar pergunta num determinado jogador
     def forwardPlayer(self, player):
+        if self.current[player] == self.total-1:
+            print("Jogador ",player, "já acabou quizz")
             if player == 0:
+                self.p1Went = True
+                print("O Jogador obteve os seguintes pontos:", self.points[0])
+            else:
+                self.p2Went = True
+                print("O Jogador obteve os seguintes pontos:", self.points[1])
+
+        else:
+            if player == 0:
+                print("vou para próxima pergunta no Jogador 0")
                 self.p1forward = True
             else:
+                print("vou para próxima pergunta no Jogador 1")
                 self.p2forward = True
 
-    # Jogador player avança para a próxima pergunta
+    # Método que permite ao Jogador player avança para a próxima pergunta e dar reset às flags de avanço de pergunta
     def resetForward(self, player):
         self.nextQuestion(player)
         if player == 0:
@@ -97,14 +93,22 @@ class Game:
         else:
             self.p2forward = False
 
-    # se estamos prontos para começar o jogo, ou seja, se os dois jogadores estão prontos
+    # Método que verifica se estamos prontos para começar o jogo, ou seja, se os dois jogadores estão prontos
     def connected(self):
             return self.ready
 
-    # se ambos os jogadores acabaram a ronda do quiz
+    # Método que verifica se ambos os jogadores acabaram a ronda do quiz
     def bothWent(self):
             return self.p1Went and self.p2Went
 
+    # Método que quando acaba o quizz para os dois jogadores dá rest ao jogo para o menu deste
+    def resetWent(self):
+        self.p1Went = False
+        self.p2Went = False
+
+    # método que define o winner do jogo
+    # 1 métrica: pontos
+    # 2 métrica: tempo
     def winner(self):
         if self.bothWent():
             points1 = self.points[0]
@@ -129,13 +133,6 @@ class Game:
             winner = 2
 
         return winner
-
-
-
-
-    def resetWent(self):
-        self.p1Went = False
-        self.p2Went = False
 
 
 

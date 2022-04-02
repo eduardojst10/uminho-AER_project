@@ -50,29 +50,57 @@ def redrawWindow(win, game, p):
         win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
 
     else:
+
         # CAIXA TEXTO - Titulo jogo
         font = pygame.font.SysFont("comicsans", 40)
         text = font.render("AER TRIVIA", True, (255, 0, 0))
         text_rect = text.get_rect(center=(width / 2, (height / 2) - 300))
         win.blit(text, text_rect)
 
-        # CAIXA TEXTO para questão
-        font = pygame.font.SysFont("Cambria", 30)
-        # Current question do jogador p
-        text = font.render(game.currentQuestion(p).encode('utf-8').rstrip(), True, (0, 0, 0))
-        text_rect = text.get_rect(center=(width / 2, (height / 2) - 200))
-        win.blit(text, text_rect)
+        if game.bothWent() :  # se somos o jogador 0 e já jogamos apresenta a nossa jogada
+            font = pygame.font.SysFont("Cambria", 90)
+            # verifica que jogador sou e se sou o winner
+            if (game.winner() == 1 and p == 1) or (game.winner() == 0 and p == 0):
+                text = font.render("You won!", True, (255, 0, 0))
+            elif game.winner() == -1:
+                text = font.render("Tie Game!", True, (255, 0, 0))
 
-        options = game.questions_options[game.current[p]]
+            else:
+                text = font.render("You Lost...", True, (255, 0, 0))
 
-        # Update botões
-        btns = [Button("1. " + options[0], 210, 250, (191, 20, 20), 350, 50),
-                Button("2. " + options[1], 210, 350, (191, 20, 20), 350, 50),
-                Button("3. " + options[2], 210, 450, (191, 20, 20), 350, 50),
-                Button("4. " + options[3], 210, 550, (191, 20, 20), 350, 50)]
+            win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
+            pygame.display.update()
+            pygame.time.delay(2000)  # tempo que fica
 
-        for btn in btns:
-            btn.draw(win, 35)
+        elif game.p2Went and p == 1:  # se somos o jogador 1 e já jogamos apresenta a nossa jogada
+            text2 = font.render("Wainting for oppenent to finish", True, (0, 0, 0))
+            text_rect2 = text.get_rect(center=(width / 2, (height / 2) - 200))
+            win.blit(text2, text_rect2)
+
+        elif game.p1Went and p == 0 :
+            text1 = font.render("Wainting for oppenent to finish", True, (0, 0, 0))
+            text_rect1 = text.get_rect(center=(width / 2, (height / 2) - 200))
+            win.blit(text1, text_rect1)
+
+        else:  # caso contrário ficamos à espera de qualquer move
+
+            # CAIXA TEXTO para questão
+            font = pygame.font.SysFont("Cambria", 30)
+            # Current question do jogador p
+            text = font.render(game.currentQuestion(p).encode('utf-8').rstrip(), True, (0, 0, 0))
+            text_rect = text.get_rect(center=(width / 2, (height / 2) - 200))
+            win.blit(text, text_rect)
+
+            options = game.questions_options[game.current[p]]
+
+            # Update de botões
+            btns = [Button("1. " + options[0], 210, 250, (191, 20, 20), 400, 50),
+                    Button("2. " + options[1], 210, 350, (191, 20, 20), 400, 50),
+                    Button("3. " + options[2], 210, 450, (191, 20, 20), 400, 50),
+                    Button("4. " + options[3], 210, 550, (191, 20, 20), 400, 50)]
+
+            for btn in btns:
+                btn.draw(win, 35)
     pygame.display.update()
 
 
@@ -97,33 +125,24 @@ def main():
         # Dois jogadores acabaram
         if game.bothWent():
             redrawWindow(win, game, player)
-            pygame.time.delay(500)
-
-            font = pygame.font.SysFont("Cambria", 90)
-            # verifica que jogador sou e se sou o winner
-            if (game.winner() == 1 and player == 1) or (game.winner() == 0 and player == 0):
-                text = font.render("You won!", True, (255, 0, 0))
-            elif game.winner() == -1:
-                text = font.render("Tie Game!", True, (255, 0, 0))
-
-            else:
-                text = font.render("You Lost...", True, (255, 0, 0))
-
-            win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
-            pygame.display.update()
-            pygame.time.delay(2000)  # tempo que fica
-
-        if (player == 0 and game.p1forward) or (player == 1 and game.p2forward):
-
-            # pygame.time.delay(500)
             try:
-                game = n.send("resetForward")  # dar reset para jogarmos avançarmos para as próximas perguntas
-                redrawWindow(win, game, player)
+                game = n.send("reset")  # dar reset para jogarmos as próximas rondas
+                run = False
+                #pygame.quit()
             except:
                 run = False
                 print("Couldn't get game")
                 break
 
+        if (player == 0 and game.p1forward) or (player == 1 and game.p2forward):
+            # pygame.time.delay(500)
+            try:
+                game = n.send("resetForward")  # dar reset para avançarmos para a próxima pergunta
+                redrawWindow(win, game, player)
+            except:
+                run = False
+                print("Couldn't get game")
+                break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
