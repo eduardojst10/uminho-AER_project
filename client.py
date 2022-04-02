@@ -139,7 +139,7 @@ def main():
                        n.send(btn.text[0])
                        print("CLIQUEI NO BOTAO", btn.text[0])
 
-        redrawWindow(win, game, 0)
+        redrawWindow(win, game, player)
 
 
 

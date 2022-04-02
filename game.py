@@ -89,6 +89,14 @@ class Game:
             else:
                 self.p2forward = True
 
+    # Jogador player avança para a próxima pergunta
+    def resetForward(self, player):
+        self.nextQuestion(player)
+        if player == 0:
+            self.p1forward = False
+        else:
+            self.p2forward = False
+
     # se estamos prontos para começar o jogo, ou seja, se os dois jogadores estão prontos
     def connected(self):
             return self.ready
@@ -122,13 +130,7 @@ class Game:
 
         return winner
 
-    # Jogador player avança para a próxima pergunta
-    def resetForward(self,player):
-            self.nextQuestion(player)
-            if player == 0:
-                self.p1forward = False
-            else:
-                self.p2forward = False
+
 
 
     def resetWent(self):

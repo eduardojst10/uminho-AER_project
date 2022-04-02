@@ -8,7 +8,9 @@ class Network:
     def __init__(self):
 
         # SOCK_STREAM - TCP || SOCK_DGRAM - UDP
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+
         self.server = "127.0.0.1"
         self.port = 55550
         self.addr = (self.server, self.port)
