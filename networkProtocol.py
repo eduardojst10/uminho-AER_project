@@ -21,13 +21,15 @@ class Network:
 
     def connect(self):
         try:
+            #IPv4 TCP
             #self.client.connect(self.addr)
+            # return self.client.recv(2048)
             # O que vamos dar ao server é o número de player
-            msg = "Sou cliente"
+            msg = "client"
             self.client.sendto(msg.encode('utf-8'),self.addr)
-            #return self.client.recv(2048)
+
             data,addr = self.client.recvfrom(2048)
-            return str(data)
+            return int(data)
         except:
             print("No connection")
 

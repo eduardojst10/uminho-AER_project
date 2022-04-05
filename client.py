@@ -107,13 +107,12 @@ def redrawWindow(win, game, p):
 def main():
     run = True
     clock = pygame.time.Clock()
-    print("vou iniciar a comunicacao")
     n = Network()
-    print("já iniciei a comunicacao")
+    print("Já iniciei a comunicacao")
 
 
     # sabemos qual o jogador
-    player = int(n.getP())
+    player = n.getP()
     print("És o jogador: ", player)
 
     while run:

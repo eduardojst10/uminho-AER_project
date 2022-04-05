@@ -104,8 +104,8 @@ class Game:
         self.p2Went = False
 
     # método que define o winner do jogo
-    # 1 métrica: pontos
-    # 2 métrica: tempo
+    # 1ª métrica: pontos
+    # 2ª métrica: tempo
     def winner(self):
         if self.bothWent():
             points1 = self.points[0]
@@ -119,13 +119,14 @@ class Game:
             elif points2 > points1:
                 winner = 1
             else:
-                if time1 > time2:
-                    winner = 0
-                elif time2 > time1:
-                    winner = 1
+                winner = -1
+                #if time1 > time2:
+                #    winner = 0
+                #elif time2 > time1:
+                #    winner = 1
 
-                else:
-                    winner = -1
+                #else:
+                    #winner = -1
         else:
             winner = 2
 
