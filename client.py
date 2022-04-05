@@ -107,7 +107,10 @@ def redrawWindow(win, game, p):
 def main():
     run = True
     clock = pygame.time.Clock()
+    print("vou iniciar a comunicacao")
     n = Network()
+    print("já iniciei a comunicacao")
+
 
     # sabemos qual o jogador
     player = int(n.getP())
@@ -126,7 +129,7 @@ def main():
         if game.bothWent():
             redrawWindow(win, game, player)
             try:
-                game = n.send("reset")  # dar reset para jogarmos as próximas rondas
+                game = n.send("reset")  # dar reset para novo jogo
                 run = False
                 #pygame.quit()
             except:
@@ -159,7 +162,6 @@ def main():
                        print("CLIQUEI NO BOTAO", btn.text[0])
 
         redrawWindow(win, game, player)
-
 
 
 def menu_screen():

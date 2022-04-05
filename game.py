@@ -10,9 +10,6 @@ class Game:
         self.p1forward = False
         self.p2forward = False
 
-        # Variáveis que vou precisar para trivia quiz
-        # tempo total que cada jogador demorou a fazer o questionário
-
         self.moves = [None, None] # respostas atuais de cada jogador
         self.current = [0,0] # acho que vou ter de ter o current para dois jogadores
         self.total = 0 # total de questões
@@ -44,7 +41,7 @@ class Game:
 
         self.questOrd = list(self.answers)
 
-    # Player responde a uma questão
+    # Método que realiza uma jogado de um jogador player e verifica os pontos dessa resposta
     def play(self, player, choice):
             self.moves[player] = choice
 
