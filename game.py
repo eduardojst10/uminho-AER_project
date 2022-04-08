@@ -10,6 +10,9 @@ class Game:
         self.p1forward = False
         self.p2forward = False
 
+        # Caso um jogador dê disconnect esta flag irá avisar acabar com o jogo
+        self.stopForward = False
+
         self.moves = [None, None] # respostas atuais de cada jogador
         self.current = [0,0] # acho que vou ter de ter o current para dois jogadores
         self.total = 0 # total de questões
@@ -46,7 +49,6 @@ class Game:
             self.moves[player] = choice
 
             answer = int(choice)
-            print("SOU O JOGADOR ", player)
             if answer == self.answers[self.questOrd[self.current[player]]]:
              if player == 0:
                     self.points[0] += 10
@@ -103,9 +105,9 @@ class Game:
         self.p1Went = False
         self.p2Went = False
 
-    # método que define o winner do jogo
+    # Método que define o winner do jogo
     # 1ª métrica: pontos
-    # 2ª métrica: tempo
+    # 2ª métrica: tempo  soon...
     def winner(self):
         if self.bothWent():
             points1 = self.points[0]
@@ -132,6 +134,9 @@ class Game:
 
         return winner
 
+    # Método usado para tratar clientes que saem abruptamente
+    def stopForward(self):
+        return self.stopForward
 
 
 

@@ -73,14 +73,16 @@ def redrawWindow(win, game, p):
             pygame.time.delay(2000)  # tempo que fica
 
         elif game.p2Went and p == 1:  # se somos o jogador 1 e já jogamos apresenta a nossa jogada
-            text2 = font.render("Wainting for oppenent to finish", True, (0, 0, 0))
-            text_rect2 = text.get_rect(center=(width / 2, (height / 2) - 200))
-            win.blit(text2, text_rect2)
+            font = pygame.font.SysFont("Cambria", 40)
+            text2 = font.render("Wainting for Player...", True, (255, 255, 255))
+            #text_rect2 = text.get_rect(center=(width / 2, (height / 2) - 200))
+            win.blit(text2, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
 
         elif game.p1Went and p == 0 :
-            text1 = font.render("Wainting for oppenent to finish", True, (0, 0, 0))
+            font = pygame.font.SysFont("Cambria", 40)
+            text1 = font.render("Wainting for Player...", True, (255, 255, 255))
             text_rect1 = text.get_rect(center=(width / 2, (height / 2) - 200))
-            win.blit(text1, text_rect1)
+            win.blit(text1, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
 
         else:  # caso contrário ficamos à espera de qualquer move
 
@@ -108,12 +110,12 @@ def main():
     run = True
     clock = pygame.time.Clock()
     n = Network()
-    print("Já iniciei a comunicacao")
+    print("Comunicação Iniciada")
 
 
     # sabemos qual o jogador
     player = n.getP()
-    print("És o jogador: ", player)
+    print("Player number: ", player)
 
     while run:
         clock.tick(60)
@@ -121,7 +123,13 @@ def main():
             game = n.send("get")
         except:
             run = False
-            print("Couldn't get Game")
+            print("Couldn't get AER TRIVIA Game in get message")
+            break
+
+
+        # Outro player sai do jogo abruptamente
+        if game.stopForward:
+            run = False
             break
 
         # Dois jogadores acabaram
@@ -133,7 +141,7 @@ def main():
                 #pygame.quit()
             except:
                 run = False
-                print("Couldn't get game")
+                print("Couldn't get AER TRIVIA Game in reset message")
                 break
 
         if (player == 0 and game.p1forward) or (player == 1 and game.p2forward):
@@ -143,22 +151,25 @@ def main():
                 redrawWindow(win, game, player)
             except:
                 run = False
-                print("Couldn't get game")
+                print("Couldn't get AER TRIVIA Game in resetForward message")
                 break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                n.send("leave")
                 run = False
                 pygame.quit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:  # se clicaram no botão essq, meio ou dir
+            if event.type == pygame.MOUSEBUTTONDOWN and game.connected():  # se clicaram no botão essq, meio ou dir
                 pos = pygame.mouse.get_pos()  # se sim, vamos buscar a posicao onde clicaram
                 for btn in btns:
                     # game.connectd() - para não fazer um move caso o outro jogador não esteja conectado
-                    if btn.click(pos) and game.connected():
+                    if btn.click(pos):
                        print(btn.text)
                        n.send(btn.text[0])
                        print("CLIQUEI NO BOTAO", btn.text[0])
+
+
 
         redrawWindow(win, game, player)
 
@@ -208,6 +219,3 @@ while True:  # Caso o alguém se desconecte vamos manter a main a correr
     menu_screen()
 
 
-# PARA TESTAR MAIS RAPIDAMENTE
-#while True:
- #   main()

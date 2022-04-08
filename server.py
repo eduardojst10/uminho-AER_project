@@ -15,17 +15,8 @@ from game import Game
 
 
 # fazer com ip do server no core
-server = "fe80::b042:9587:8d2d:7d69%19"
+server = "fe80::b042:9587:8d2d:7d69%20"
 port = 55550
-
-# criação de socket para ipv4 e TCP
-#s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-#try:
-#    s.bind((server, port))
-#except socket.error as e:
-#    print(e)
-
 
 # criação de socket para ipv6 e UDP
 s6 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
@@ -33,18 +24,12 @@ try:
     s6.bind((server,port))
 except socket.error as e:
     print(e)
-
-
-# vai começar a ouvir
-#s.listen(2)
-#s6.listen(2)
 print("Waiting for connection, Server Started for AER Trivia Game")
 
 # store ids de games
 games = {}
 # keep track dos jogos
 idCount = 0
-
 
 # player vai ser o nr de jogador 1 ou 0 - current player
 def threaded_client(s, p, gameId,addr,data6):
@@ -60,24 +45,60 @@ def threaded_client(s, p, gameId,addr,data6):
         game = games[gameId]
 
         if not data:
-                #break
             print("Data Invalid")
 
         else:
-            if data == "client":
+            if data == "leave":
+                # do something
+                print("Recebi leave")
+                game.stopForward = True
+                print("Lost Connection")
+                try:
+                   del games[gameId]
+                   print("Closing Game ", gameId)
+
+                   for address in activeP_game[gameId]:
+                        players_num.pop(address)
+                        players_threads.pop(address)
+                        players_game.pop(address)
+                   activeP_game.pop(gameId)
+                except:
+                    pass
+                idCount -= 2
+
+            elif data == "client":
                 s.sendto(str.encode(str(p)), addr)  # vamos enviar que jogador somos [0,1]
 
             elif data == "reset":
+                print("--------------------------------------------------")
+                print("-Got a reset from", p)
                 game.resetWent()
 
+
+                try:
+                    del games[gameId]
+                    print("Closing Game ", gameId)
+                    for address in activeP_game[gameId]:
+                        players_num.pop(address)
+                        players_threads.pop(address)
+                        players_game.pop(address)
+                    activeP_game.pop(gameId)
+                except:
+                    pass
+                idCount -= 1
+
             elif data == "resetForward":
-                print("got a resetForward from", p)
+                print("-Got a resetForward from", p)
                 game.resetForward(p)
                 print("Jogador ", p, "está na questão: ", game.currentQuestion(p))
                 print("--------------------------------------------------")
             elif data != "get":
-                print("got an answer from ",p)
+                print("----------------------RESPOSTA from", p,"-----------")
+                print("-Got an answer from ", p)
                 game.play(p, data)
+
+
+
 
             s.sendto(pickle.dumps(game),addr)
     else:
@@ -95,24 +116,34 @@ def threaded_client(s, p, gameId,addr,data6):
     #idCount -= 1
     #s.close()
 
+# Thread por pedido de um player
 players_threads = {}
+
+# Número de jogador de um player em qualquer jogo
 players_num = {}
+
+# Id de jogo de cada player
 players_game = {}
+
+activeP_game = {}
+
+
 while True:
-    #Começo de comunicação
-    #conn, addr = s.accept()
+    #Começo de comunicação com clientes/players
     try:
-        data6,addr6 = s6.recvfrom(4096)
-        #print("IDCOUNT: ",idCount)
+        data6, addr6 = s6.recvfrom(4096)
+
+        # De modo a não criar sempre jogos
         if addr6 in players_threads:
             thr = threading.Thread(target=threaded_client, args=(s6, players_num[addr6], players_game[addr6], addr6,data6))
             players_threads[addr6] = thr
             players_threads[addr6].start()
 
-
         else:
-            print("Conectado a : ", addr6)
             idCount += 1
+            print("--------------------------------------------------")
+            print("Conectado a : ", addr6, ", IDCOUNT de :", idCount)
+            print("--------------------------------------------------")
             p = 0
             # o que gameId vai fazer é dizer-nos quando é necessário criar mais um jogo
             # por exemplo se tivermos 6 pessoas apenas precisamos de 3 jogos, com 7 temos de ter +1 e esperar pelo 8º jogador
@@ -131,11 +162,22 @@ while True:
                 # current player
                 p = 1
 
-            thr = threading.Thread(target=threaded_client,args=(s6, p, gameId,addr6,data6))
-            players_threads[addr6] = thr
+            # Player Number
             players_num[addr6] = p
+
+            # Id de jogo do player
             players_game[addr6] = gameId
+
+            #Controlo de dos dois clientes por jogo
+            if gameId not in activeP_game:
+                activeP_game[gameId] = [addr6]
+
+            else:
+                activeP_game[gameId].append(addr6)
+
+            thr = threading.Thread(target=threaded_client, args=(s6, p, gameId, addr6, data6))
+            players_threads[addr6] = thr
             players_threads[addr6].start()
+
     except:
-        break
-    #x = start_new_thread(threaded_client, (s6, p, gameId,addr6))
+        pass
